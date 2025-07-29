@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard de Clima Global - Plotly & D3.js</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <!-- Plotly.js CDN -->
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <!-- D3.js CDN -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <!-- Header -->
+      <header class="header">
+        <h1>Dashboard de Clima Global</h1>
+        <p>
+          Análisis interactivo de datos meteorológicos mundiales con Plotly y
+          D3.js
+        </p>
+      </header>
+
+      <!-- Navigation -->
+      <nav class="nav">
+        <button class="nav-btn active" data-section="plotly-charts">
+          Gráficos Plotly
+        </button>
+        <button class="nav-btn" data-section="d3-charts">Gráficos D3.js</button>
+        <button class="nav-btn" data-section="filters">Filtros</button>
+      </nav>
+
+      <!-- Filters Panel -->
+      <aside class="filters-panel">
+        <h3>Filtros Interactivos</h3>
+
+        <!-- Plotly Filters -->
+        <div class="filter-group">
+          <h4>Filtros Plotly</h4>
+          <div class="filter-item">
+            <label for="year-select">Año:</label>
+            <select id="year-select">
+              <option value="all">Todos</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label for="month-select">Mes:</label>
+            <select id="month-select">
+              <option value="all">Todos</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label for="temp-range">Temperatura (°C):</label>
+            <input type="range" id="temp-min" min="-30" max="50" value="-30" />
+            <input type="range" id="temp-max" min="-30" max="50" value="50" />
+            <span id="temp-display">-30°C - 50°C</span>
+          </div>
+          <div class="filter-item">
+            <label for="country-select">País:</label>
+            <select id="country-select">
+              <option value="all">Todos</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- D3.js Filters -->
+        <div class="filter-group">
+          <h4>Controles D3.js</h4>
+          <div class="filter-item">
+            <label>
+              <input type="checkbox" id="series-toggle" checked />
+              Mostrar todas las series
+            </label>
+          </div>
+          <div class="filter-item">
+            <label>Escala:</label>
+            <button id="scale-linear" class="scale-btn active">Lineal</button>
+            <button id="scale-log" class="scale-btn">Logarítmica</button>
+          </div>
+          <div class="filter-item">
+            <label>
+              <input type="checkbox" id="show-outliers" checked />
+              Mostrar valores atípicos
+            </label>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Loading Indicator -->
+        <div id="loading" class="loading">
+          <div class="spinner"></div>
+          <p>Cargando datos meteorológicos globales...</p>
+        </div>
+
+        <!-- Error Display -->
+        <div id="error-display" class="error-display hidden">
+          <h3>Error</h3>
+          <p id="error-message"></p>
+          <button id="retry-btn">Reintentar</button>
+        </div>
+
+        <!-- Plotly Charts Section -->
+        <section id="plotly-charts" class="content-section active">
+          <h2>Visualizaciones con Plotly</h2>
+          <div class="charts-grid">
+            <div class="chart-container">
+              <h3>Gráfico Combinado</h3>
+              <p class="chart-description">
+                Temperatura promedio (barras) + Humedad (línea) por mes
+              </p>
+              <div id="combined-chart"></div>
+            </div>
+            <div class="chart-container">
+              <h3>Gráfico de Cascada</h3>
+              <p class="chart-description">
+                Cambios de temperatura por trimestre
+              </p>
+              <div id="waterfall-chart"></div>
+            </div>
+            <div class="chart-container">
+              <h3>Mapa de Árbol</h3>
+              <p class="chart-description">
+                Países organizados por temperatura promedio
+              </p>
+              <div id="treemap-chart"></div>
+            </div>
+            <div class="chart-container">
+              <h3>Diagrama de Sankey</h3>
+              <p class="chart-description">
+                Flujo de condiciones climáticas por región
+              </p>
+              <div id="sankey-chart"></div>
+            </div>
+            <div class="chart-container">
+              <h3>Gráfico de Enjambre</h3>
+              <p class="chart-description">
+                Distribución de temperaturas por condición climática
+              </p>
+              <div id="swarm-chart"></div>
+            </div>
+            <div class="chart-container">
+              <h3>Mapa Geográfico</h3>
+              <p class="chart-description">Temperaturas promedio por país</p>
+              <div id="geo-chart"></div>
+            </div>
+            <div class="chart-container">
+              <h3>Gráfico de Embudo</h3>
+              <p class="chart-description">
+                Distribución de condiciones climáticas
+              </p>
+              <div id="funnel-chart"></div>
+            </div>
+            <div class="chart-container">
+              <h3>Gráfico Radar</h3>
+              <p class="chart-description">
+                Comparación de métricas climáticas por región
+              </p>
+              <div id="radar-chart"></div>
+            </div>
+            <div class="chart-container">
+              <h3>Mapa de Calor</h3>
+              <p class="chart-description">
+                Correlación entre variables meteorológicas
+              </p>
+              <div id="heatmap-chart"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- D3.js Charts Section -->
+        <section id="d3-charts" class="content-section">
+          <h2>Visualizaciones con D3.js</h2>
+          <div class="charts-grid">
+            <div class="chart-container">
+              <h3>Gráfico de Cinta</h3>
+              <p class="chart-description">
+                Conexiones entre condiciones climáticas y regiones
+              </p>
+              <div id="ribbon-chart"></div>
+            </div>
+            <div class="chart-container">
+              <h3>Gráfico de Pareto</h3>
+              <p class="chart-description">
+                Análisis 80/20 de países por temperatura
+              </p>
+              <div id="pareto-chart"></div>
+            </div>
+            <div class="chart-container">
+              <h3>Gráfico de Densidad (KDE)</h3>
+              <p class="chart-description">
+                Distribución de densidad de temperaturas
+              </p>
+              <div id="kde-chart"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Filters Section -->
+        <section id="filters" class="content-section">
+          <h2>Documentación de Filtros</h2>
+          <div class="filter-docs">
+            <div class="doc-section">
+              <h3>Filtros Plotly</h3>
+              <p>
+                <strong>Dropdown de Año/Mes:</strong> Permite filtrar los datos
+                por período temporal específico basado en la fecha de
+                actualización. Afecta todos los gráficos que muestran datos
+                temporales.
+              </p>
+              <p>
+                <strong>Slider de Temperatura:</strong> Filtra los datos por
+                rango de temperatura en grados Celsius. Útil para análisis de
+                condiciones específicas.
+              </p>
+              <p>
+                <strong>Dropdown de País:</strong> Permite seleccionar un país
+                específico para análisis detallado de sus condiciones
+                climáticas.
+              </p>
+            </div>
+            <div class="doc-section">
+              <h3>Controles D3.js</h3>
+              <p>
+                <strong>Checkbox de Series:</strong> Permite mostrar u ocultar
+                series de datos específicas en los gráficos D3.js.
+              </p>
+              <p>
+                <strong>Botones de Escala:</strong> Cambia entre escala lineal y
+                logarítmica para mejor visualización de datos con rangos
+                amplios.
+              </p>
+              <p>
+                <strong>Checkbox de Valores Atípicos:</strong> Controla la
+                visualización de valores extremos en los gráficos.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/data/weatherDataLoader.js"></script>
+    <script src="js/data/weatherDataProcessor.js"></script>
+    <script src="js/charts/weatherPlotlyCharts.js"></script>
+    <script src="js/charts/weatherD3Charts.js"></script>
+    <script src="js/filters/weatherFilterManager.js"></script>
+    <script src="js/ui/weatherUIController.js"></script>
+    <script src="js/state/weatherStateManager.js"></script>
+    <script src="js/weatherMain.js"></script>
+  </body>
+</html>
